@@ -135,3 +135,38 @@ export async function createGoal({ data }: { data: z.infer<typeof GoalInput> }) 
   if (error) throw new Error(error.message);
   return { ok: true };
 }
+
+export async function isAdmin() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !user.email) return false;
+  
+  const adminEmails = import.meta.env.VITE_ADMIN_EMAILS || "";
+  const emails = adminEmails.split(",").map((e: string) => e.trim().toLowerCase());
+  return emails.includes(user.email.toLowerCase());
+}
+
+export async function getAllProfiles() {
+  const isUserAdmin = await isAdmin();
+  if (!isUserAdmin) throw new Error("Unauthorized");
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function getAllFootprints() {
+  const isUserAdmin = await isAdmin();
+  if (!isUserAdmin) throw new Error("Unauthorized");
+
+  const { data, error } = await supabase
+    .from("footprints")
+    .select("*, profiles(display_name)") // profiles doesn't contain email
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}

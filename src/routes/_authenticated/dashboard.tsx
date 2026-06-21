@@ -14,6 +14,7 @@ import {
   getProfile,
   listGoals,
   createGoal,
+  isAdmin,
 } from "@/lib/ecolens.functions";
 import { generateInsights, type FootprintInput } from "@/lib/carbon";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
@@ -28,6 +29,7 @@ function Dashboard() {
   const fpQ = useQuery({ queryKey: ["footprint"], queryFn: () => getLatestFootprint() });
   const histQ = useQuery({ queryKey: ["history"], queryFn: () => getFootprintHistory() });
   const goalsQ = useQuery({ queryKey: ["goals"], queryFn: () => listGoals() });
+  const adminQ = useQuery({ queryKey: ["isAdmin"], queryFn: () => isAdmin() });
 
   useEffect(() => {
     if (profileQ.data && profileQ.data.onboarded === false) {
@@ -104,6 +106,11 @@ function Dashboard() {
             <span className="font-display text-lg font-semibold">EcoLens<span className="text-primary"> AI</span></span>
           </Link>
           <div className="flex items-center gap-3">
+            {adminQ.data && (
+              <Link to="/admin" className="text-xs text-primary transition-colors hover:text-primary/80 font-medium hidden sm:inline-block mr-2">
+                Admin Dashboard
+              </Link>
+            )}
             <Link to="/settings" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
               <Settings className="h-4 w-4" />
             </Link>
