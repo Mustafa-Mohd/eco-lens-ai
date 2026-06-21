@@ -39,18 +39,18 @@ export function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <a
-              href="#signin"
+            <Link
+              to="/auth"
               className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:block"
             >
               Sign in
-            </a>
-            <a
-              href="#get-started"
+            </Link>
+            <Link
+              to="/auth"
               className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-glow transition-all hover:scale-[1.03] hover:brightness-110"
             >
               Get started
-            </a>
+            </Link>
           </div>
         </div>
       </div>
