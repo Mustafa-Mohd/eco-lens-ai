@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Leaf } from "lucide-react";
+import { toast } from "sonner";
 
 export function SiteHeader() {
   return (
@@ -31,6 +32,12 @@ export function SiteHeader() {
               <a
                 key={item.label}
                 href={item.href}
+                onClick={(e) => {
+                  if (item.href === "#pricing") {
+                    e.preventDefault();
+                    toast.info("Pricing plans coming soon!");
+                  }
+                }}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}

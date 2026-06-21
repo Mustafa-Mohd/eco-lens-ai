@@ -1,4 +1,6 @@
 import { Leaf } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function SiteFooter() {
   return (
@@ -20,18 +22,43 @@ export function SiteFooter() {
           </div>
 
           {[
-            { title: "Product", links: ["Features", "Dashboard", "AI Insights", "Reports"] },
-            { title: "Company", links: ["About", "Blog", "Careers", "Press"] },
-            { title: "Resources", links: ["Docs", "Climate Data", "Privacy", "Terms"] },
+            { title: "Product", links: [
+              { label: "Features", href: "#features" },
+              { label: "Dashboard", to: "/dashboard" },
+              { label: "AI Insights", href: "#insights" },
+              { label: "Reports", comingSoon: true }
+            ] },
+            { title: "Company", links: [
+              { label: "About", comingSoon: true },
+              { label: "Blog", comingSoon: true },
+              { label: "Careers", comingSoon: true },
+              { label: "Press", comingSoon: true }
+            ] },
+            { title: "Resources", links: [
+              { label: "Docs", comingSoon: true },
+              { label: "Climate Data", comingSoon: true },
+              { label: "Privacy", comingSoon: true },
+              { label: "Terms", comingSoon: true }
+            ] },
           ].map((col) => (
             <div key={col.title}>
               <h4 className="mb-4 font-display text-sm font-semibold">{col.title}</h4>
               <ul className="space-y-2.5">
                 {col.links.map((l) => (
-                  <li key={l}>
-                    <a href="#" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                      {l}
-                    </a>
+                  <li key={l.label}>
+                    {l.to ? (
+                      <Link to={l.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a 
+                        href={l.href || "#"} 
+                        onClick={l.comingSoon ? (e) => { e.preventDefault(); toast.info(`${l.label} coming soon!`); } : undefined}
+                        className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        {l.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

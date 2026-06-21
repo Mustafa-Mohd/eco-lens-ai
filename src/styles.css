@@ -1,5 +1,4 @@
-@import "tailwindcss" source(none);
-@source "../src";
+@import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -189,3 +188,10 @@
 
 .animate-float { animation: float 6s ease-in-out infinite; }
 .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
+
+/* Hide any Lovable badges that might be injected by lovable-tagger */
+#lovable-badge,
+.lovable-badge,
+[id^="lovable-badge"] {
+  display: none !important;
+}

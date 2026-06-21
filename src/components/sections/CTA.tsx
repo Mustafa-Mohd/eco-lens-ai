@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 export function CTA() {
   return (
@@ -22,15 +23,15 @@ export function CTA() {
           Join thousands cutting emissions with personalized AI guidance. Free forever for individuals.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <a
-            href="#signup"
+          <Link
+            to="/auth"
             className="group inline-flex items-center gap-2 rounded-xl bg-primary px-7 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition-all hover:scale-[1.03] hover:brightness-110"
           >
             Start free
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </a>
+          </Link>
           <a
-            href="#book-demo"
+            href="mailto:hello@ecolens.ai?subject=Book a Demo"
             className="glass inline-flex items-center rounded-xl px-7 py-3.5 text-sm font-medium transition-all hover:bg-white/10"
           >
             Book a demo

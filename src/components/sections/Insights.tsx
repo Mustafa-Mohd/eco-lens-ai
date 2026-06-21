@@ -27,7 +27,7 @@ const insights = [
 
 export function Insights() {
   return (
-    <section className="relative px-6 py-32">
+    <section id="insights" className="relative px-6 py-32">
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
