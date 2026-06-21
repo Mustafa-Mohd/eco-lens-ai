@@ -9,6 +9,7 @@ import { Features } from "@/components/sections/Features";
 import { Demo } from "@/components/sections/Demo";
 import { Insights } from "@/components/sections/Insights";
 import { Testimonials } from "@/components/sections/Testimonials";
+import { Pricing } from "@/components/sections/Pricing";
 import { FAQ } from "@/components/sections/FAQ";
 import { CTA } from "@/components/sections/CTA";
 
@@ -53,6 +54,7 @@ function Index() {
         <Demo />
         <Insights />
         <Testimonials />
+        <Pricing />
         <FAQ />
         <CTA />
       </main>

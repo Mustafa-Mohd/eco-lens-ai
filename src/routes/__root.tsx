@@ -4,30 +4,34 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  HeadContent,
-  Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { Toaster } from "sonner";
+import { Leaf, ArrowRight, RefreshCcw } from "lucide-react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+      <div className="absolute inset-0 -z-10 bg-aurora opacity-10 blur-3xl" />
+      <div className="glass-strong relative z-10 w-full max-w-md rounded-3xl p-8 text-center shadow-elegant md:p-12">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 shadow-glow">
+          <Leaf className="h-8 w-8 text-primary" strokeWidth={2.5} />
+        </div>
+        <h1 className="mt-8 font-display text-7xl font-bold tracking-tight text-gradient">404</h1>
+        <h2 className="mt-4 font-display text-2xl font-semibold">Lost in the woods</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          The page you're looking for doesn't exist, has been moved, or perhaps was naturally biodegraded.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition-all hover:brightness-110"
           >
-            Go home
+            Find your way home
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>
@@ -43,27 +47,30 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+      <div className="absolute inset-0 -z-10 bg-destructive/5 blur-3xl" />
+      <div className="glass-strong relative z-10 w-full max-w-md rounded-3xl p-8 text-center shadow-elegant md:p-12">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-destructive/10">
+          <RefreshCcw className="h-8 w-8 text-destructive" strokeWidth={2.5} />
+        </div>
+        <h1 className="mt-8 font-display text-2xl font-semibold">Something went wrong</h1>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+          Our system encountered an unexpected error. Please try refreshing the page or navigating back home.
         </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-8 flex flex-col gap-3">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground shadow-glow transition-all hover:brightness-110"
           >
+            <RefreshCcw className="h-4 w-4 transition-transform group-hover:rotate-180" />
             Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="glass inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-medium transition-all hover:bg-white/10"
           >
             Go home
           </a>
@@ -74,52 +81,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EcoLens AI" },
-      { name: "description", content: "EcoLens AI helps users understand, track, and reduce their carbon footprint with personalized AI insights." },
-      { name: "author", content: "EcoLens AI" },
-      { property: "og:title", content: "EcoLens AI" },
-      { property: "og:description", content: "EcoLens AI helps users understand, track, and reduce their carbon footprint with personalized AI insights." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@EcoLensAI" },
-      { name: "twitter:title", content: "EcoLens AI" },
-      { name: "twitter:description", content: "EcoLens AI helps users understand, track, and reduce their carbon footprint with personalized AI insights." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c32c187f-d4b9-418e-ae49-340118dafd1d/id-preview-427abb9f--a2ee1c49-3f49-4ee0-ab2b-ea506a0764b5.lovable.app-1782070234002.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/c32c187f-d4b9-418e-ae49-340118dafd1d/id-preview-427abb9f--a2ee1c49-3f49-4ee0-ab2b-ea506a0764b5.lovable.app-1782070234002.png" },
-    ],
-    links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
-      },
-      { rel: "stylesheet", href: appCss },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
-
-function RootShell({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

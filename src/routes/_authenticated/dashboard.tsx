@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -25,16 +24,10 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 function Dashboard() {
   const navigate = useNavigate();
-  const fetchLatest = useServerFn(getLatestFootprint);
-  const fetchHistory = useServerFn(getFootprintHistory);
-  const fetchProfile = useServerFn(getProfile);
-  const fetchGoals = useServerFn(listGoals);
-  const addGoal = useServerFn(createGoal);
-
-  const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => fetchProfile() });
-  const fpQ = useQuery({ queryKey: ["footprint"], queryFn: () => fetchLatest() });
-  const histQ = useQuery({ queryKey: ["history"], queryFn: () => fetchHistory() });
-  const goalsQ = useQuery({ queryKey: ["goals"], queryFn: () => fetchGoals() });
+  const profileQ = useQuery({ queryKey: ["profile"], queryFn: () => getProfile() });
+  const fpQ = useQuery({ queryKey: ["footprint"], queryFn: () => getLatestFootprint() });
+  const histQ = useQuery({ queryKey: ["history"], queryFn: () => getFootprintHistory() });
+  const goalsQ = useQuery({ queryKey: ["goals"], queryFn: () => listGoals() });
 
   useEffect(() => {
     if (profileQ.data && profileQ.data.onboarded === false) {
@@ -111,7 +104,7 @@ function Dashboard() {
             <span className="font-display text-lg font-semibold">EcoLens<span className="text-primary"> AI</span></span>
           </Link>
           <div className="flex items-center gap-3">
-            <Link to="/onboarding" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
+            <Link to="/settings" className="text-xs text-muted-foreground transition-colors hover:text-foreground">
               <Settings className="h-4 w-4" />
             </Link>
             <button onClick={signOut} className="glass inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs transition-all hover:bg-white/10">
@@ -279,7 +272,13 @@ function Dashboard() {
             goals={goalsQ.data ?? []}
             onAdd={async (input) => {
               try {
-                await addGoal({ data: input });
+                await createGoal({
+                  data: {
+                    title: input.title,
+                    description: input.description,
+                    target_reduction_pct: input.target_reduction_pct,
+                  },
+                });
                 toast.success("Goal created");
                 goalsQ.refetch();
               } catch (e) {

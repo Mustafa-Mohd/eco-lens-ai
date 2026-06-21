@@ -1,7 +1,6 @@
-import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { computeFootprint } from "./carbon";
+import { supabase } from "@/integrations/supabase/client";
 
 const FootprintInputSchema = z.object({
   car_km_week: z.number().min(0).max(2000),
@@ -15,75 +14,104 @@ const FootprintInputSchema = z.object({
   water_liters_day: z.number().min(0).max(2000),
 });
 
-export const saveFootprint = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => FootprintInputSchema.parse(data))
-  .handler(async ({ data, context }) => {
-    const computed = computeFootprint(data);
-    const { error: fpError } = await context.supabase.from("footprints").insert({
-      user_id: context.userId,
-      ...data,
-      ...computed,
-    });
-    if (fpError) throw new Error(fpError.message);
+export async function saveFootprint({ data }: { data: z.infer<typeof FootprintInputSchema> }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
 
-    await context.supabase
-      .from("profiles")
-      .update({ onboarded: true })
-      .eq("id", context.userId);
+  const validated = FootprintInputSchema.parse(data);
+  const computed = computeFootprint(validated);
 
-    return { ok: true, computed };
+  const { error: fpError } = await supabase.from("footprints").insert({
+    user_id: user.id,
+    ...validated,
+    ...computed,
   });
+  if (fpError) throw new Error(fpError.message);
 
-export const getLatestFootprint = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("footprints")
-      .select("*")
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    return data;
-  });
+  await supabase
+    .from("profiles")
+    .update({ onboarded: true })
+    .eq("id", user.id);
 
-export const getFootprintHistory = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("footprints")
-      .select("created_at, co2_total, eco_score")
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: true });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
+  return { ok: true, computed };
+}
 
-export const getProfile = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", context.userId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    return data;
-  });
+export async function getLatestFootprint() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
 
-export const listGoals = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
-      .from("goals")
-      .select("*")
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  });
+  const { data, error } = await supabase
+    .from("footprints")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function getFootprintHistory() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase
+    .from("footprints")
+    .select("created_at, co2_total, eco_score")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function getProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+const ProfileUpdateSchema = z.object({
+  display_name: z.string().min(2).max(50),
+});
+
+export async function updateProfile({ data }: { data: z.infer<typeof ProfileUpdateSchema> }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const validated = ProfileUpdateSchema.parse(data);
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: validated.display_name })
+    .eq("id", user.id);
+
+  if (error) throw new Error(error.message);
+  return { ok: true };
+}
+
+export async function listGoals() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data, error } = await supabase
+    .from("goals")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
 
 const GoalInput = z.object({
   title: z.string().min(2).max(120),
@@ -91,16 +119,19 @@ const GoalInput = z.object({
   target_reduction_pct: z.number().int().min(1).max(100),
 });
 
-export const createGoal = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: unknown) => GoalInput.parse(data))
-  .handler(async ({ data, context }) => {
-    const { error } = await context.supabase.from("goals").insert({
-      user_id: context.userId,
-      title: data.title,
-      description: data.description ?? null,
-      target_reduction_pct: data.target_reduction_pct,
-    });
-    if (error) throw new Error(error.message);
-    return { ok: true };
+export async function createGoal({ data }: { data: z.infer<typeof GoalInput> }) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const validated = GoalInput.parse(data);
+
+  const { error } = await supabase.from("goals").insert({
+    user_id: user.id,
+    title: validated.title,
+    description: validated.description ?? null,
+    target_reduction_pct: validated.target_reduction_pct,
   });
+
+  if (error) throw new Error(error.message);
+  return { ok: true };
+}

@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { motion, AnimatePresence } from "framer-motion";
 import { Car, Zap, Utensils, Recycle, Droplet, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { useState } from "react";
@@ -25,7 +24,6 @@ const initial: FootprintInput = {
 
 function Onboarding() {
   const navigate = useNavigate();
-  const save = useServerFn(saveFootprint);
   const [step, setStep] = useState(0);
   const [data, setData] = useState<FootprintInput>(initial);
   const [loading, setLoading] = useState(false);
@@ -45,8 +43,8 @@ function Onboarding() {
   async function finish() {
     setLoading(true);
     try {
-      await save({ data });
-      toast.success("Footprint calculated!");
+      await saveFootprint({ data });
+      toast.success("Footprint saved successfully!");
       navigate({ to: "/dashboard" });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not save");
